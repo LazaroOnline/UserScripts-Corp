@@ -1,5 +1,7 @@
 
-# UserScripts-Corp
+<img src="icon.png" width="180"/>
+  
+# <img src="icon.png" width="30" style="padding-top:10px;"/> UserScripts-Corp
 
 Collection of UserScripts for browser's plugins like TamperMonkey.
 
