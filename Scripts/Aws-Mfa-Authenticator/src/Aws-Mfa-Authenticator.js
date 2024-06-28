@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Aws-Mfa-Authenticator
 // @namespace    LazaroOnline
-// @version      1
+// @version      1.1
 // @description  Auto-fill in the MFA token during login.
 // @author       Lazaro M
 // @match        https://*.signin.aws.amazon.com/oauth*
@@ -13,9 +13,22 @@
 
 const config = {
     retryPeriodMilliseconds: 800
-   ,inputSelector: "input#mfacode"
    ,mfaSecret: "PASTE_YOUR_MFA_SECRET_HERE"
+   ,autoClickOnSignIn: true // Auto-clicks the initial screen "sign-in" button if the form is filled-in.
 }
+
+const selectors = {
+    accountIdInput: "input#account"
+   ,usernameInput: "input#username"
+   ,passwordInput: "input#password"
+   ,rememberAccountCheckbox: "input#remember_account_checkbox"
+   ,signinButton: "#signin_button"
+   ,mfaCodeInput: "input#mfacode"
+   ,submitMfaButton: "#submitMfa_button"
+}
+
+const scriptName = "Aws-Mfa-Authenticator"
+
 //____________________________________________________________________________________________________
 
 // Imports:
@@ -53,18 +66,57 @@ Auth MFA/2FA libraries:
 */
 //____________________________________________________________________________________________________
 
+async function retryUntilAcceptLoginWithValues(totalRetries = null) {
+    let success = false
+    let retryNumber = 0
+    do {
+        retryNumber += 1
+        console.log(`${scriptName}: ${retryNumber} Retrying to find "${selectors.signinButton}" with form filled...`)
+        success = acceptLoginWithValues()
+        await sleep(config.retryPeriodMilliseconds)
+    }
+    while(!success || (totalRetries !== null && retryNumber < totalRetries))
+}
+
+function acceptLoginWithValues() {
+    var signinButton = document.querySelector(selectors.signinButton)
+    if (signinButton != null && isFormFilled()) {
+        console.log(`${scriptName}: auto-clicking in sign-in button to speedup the login`)
+        signinButton.click()
+        return true
+    }
+    return false
+}
+
+function isFormFilled() {
+    // Chrome's auto-complete feature doesn't write the username/password until the user has clicked on the page,
+    // So this script won't auto-click the initial sign-in button with 0 user interaction just loading the page.
+    // document.querySelector("body").click() // This won't make Chrome commit the auto-complete.
+    var accountIdInput = document.querySelector(selectors.accountIdInput)
+    var usernameInput = document.querySelector(selectors.usernameInput)
+    var passwordInput = document.querySelector(selectors.passwordInput)
+    var hasAccount = accountIdInput?.value?.length > 2
+    var hasUsername = usernameInput?.value?.length > 2
+    var hasPassword = passwordInput?.value?.length > 2
+    var isFilled = hasAccount && hasUsername && hasPassword
+    if (!isFilled) {
+        console.log(`${scriptName}: form not filled: Account=${hasAccount}, Username=${hasUsername}, Password=${hasPassword}`)
+    }
+    return isFilled
+}
+
 function generateMfaCode() {
     const isNotConfigured = config.mfaSecret == null || config.mfaSecret.startsWith("PASTE")
     if (isNotConfigured) {
-        throw new Error('Aws-Mfa-Authenticator: Script not yet configured, please edit the script config with your MFA Secret!')
+        throw new Error(`${scriptName}: Script not yet configured, please edit the script config with your MFA Secret!`)
     }
     const mfaCode = window.otplib.authenticator.generate(config.mfaSecret)
-    console.log("authenticator Token generated: " + mfaCode)
+    console.log(`${scriptName}: authenticator Token generated: ${mfaCode}`)
     return mfaCode
 }
 
 function fillMfaCode() {
-    var input = document.querySelector(config.inputSelector)
+    var input = document.querySelector(selectors.mfaCodeInput)
     if (input != null) {
         input.value = generateMfaCode()
         input.dispatchEvent(new Event('change', { 'bubbles': true }))
@@ -76,14 +128,14 @@ function fillMfaCode() {
 const sleep = (milliseconds) => new Promise(resolve => setTimeout(resolve, milliseconds))
 
 function submitMfaCode() {
-    var submitButton = document.querySelector("#submitMfa_button")
+    var submitButton = document.querySelector(selectors.submitMfaButton)
     submitButton?.click()
 }
 
 async function retryUntilFillMfaCode() {
-    let success = false;
+    let success = false
     do {
-        console.log(`Aws-Mfa-Authenticator: Retrying to find "${config.inputSelector}"...`)
+        console.log(`${scriptName}: Retrying to find "${selectors.mfaCodeInput}"...`)
         success = fillMfaCode()
         await sleep(config.retryPeriodMilliseconds)
     }
@@ -92,6 +144,9 @@ async function retryUntilFillMfaCode() {
 }
 
 (function() {
-    console.log("Aws-Mfa-Authenticator: Script starting...")
-    retryUntilFillMfaCode()
+    console.log(`${scriptName}: Script starting...`)
+    if (config.autoClickOnSignIn) {
+        window.addEventListener('load', retryUntilAcceptLoginWithValues)
+    }
+    window.addEventListener('load', retryUntilFillMfaCode)
 })();
