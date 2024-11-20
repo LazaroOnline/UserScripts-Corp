@@ -4,7 +4,7 @@
 // @version      1.0
 // @description  Auto-fill in the MFA token during login.
 // @author       Lazaro M
-// @match        https://auth0.auth0.com/u/mfa-otp-challenge
+// @match        https://auth0.auth0.com/u/mfa-otp-challenge*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=auth0.com
 // @grant        unsafeWindow
 // ==/UserScript==
@@ -19,10 +19,10 @@ const config = {
 
 const selectors = {
     mfaCodeInput: "input#code"
-   ,submitMfaButton: "button[type='submit'][value='default']"
+   ,submitButton: "button[type='submit'][value='default']"
 }
 
-const scriptName = "Auth0-Mfa-Authenticator"
+const scriptName = "Auth0-Mfa-Authenticator";
 
 //____________________________________________________________________________________________________
 
@@ -87,7 +87,7 @@ function fillMfaCode() {
 const sleep = (milliseconds) => new Promise(resolve => setTimeout(resolve, milliseconds))
 
 function submitMfaCode() {
-    var submitButton = document.querySelector(selectors.submitMfaButton)
+    var submitButton = document.querySelector(selectors.submitButton)
     submitButton?.click()
 }
 

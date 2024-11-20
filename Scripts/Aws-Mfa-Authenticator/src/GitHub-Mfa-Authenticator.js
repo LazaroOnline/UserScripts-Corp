@@ -19,7 +19,7 @@ const config = {
 
 const selectors = {
     mfaCodeInput: "input#app_totp"
-   ,submitMfaButton: "button[type='submit']"
+   ,submitButton: "button[type='submit']"
 }
 
 const scriptName = "GitHub-Mfa-Authenticator"
@@ -87,7 +87,7 @@ function fillMfaCode() {
 const sleep = (milliseconds) => new Promise(resolve => setTimeout(resolve, milliseconds))
 
 function submitMfaCode() {
-    var submitButton = document.querySelector(selectors.submitMfaButton)
+    var submitButton = document.querySelector(selectors.submitButton)
     submitButton?.click()
 }
 
