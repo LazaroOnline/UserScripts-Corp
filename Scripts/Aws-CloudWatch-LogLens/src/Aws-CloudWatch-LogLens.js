@@ -29,6 +29,16 @@ CloudWatch: with a column that contains single IPs.
 
 */
 
+
+// https://www.regextester.com/94410
+// https://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid/13653180#13653180
+const guidRegexTextCaseInsensitive = "[0-9a-f]{8}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{12}";
+const guidRegexText = "[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}";
+const guidRegexTextExact = "^" + guidRegexText + "$";
+const guidRegex = new RegExp(guidRegexText, "gi");
+var isGuid = (string) => guidRegex.test(string);
+
+
 const attributePrefix = "LZ-Aws-CloudWatch-LogLens-"
 const selectors = {
   addOn: {
