@@ -31,3 +31,7 @@ Save the script in the editor with `Control + S`.
 
 You can also debug the script using the regular browser DevTools with it's console window.  
 
+To enable running scripts in a Chrome-based browser,  
+it is required to either enable Developer-Mode or  
+"Allow User Scripts" toggle (via extension settings) for TamperMonkey extension.  
+([see this](https://www.tampermonkey.net/faq.php?locale=en#Q209)).
