@@ -34,4 +34,8 @@ You can also debug the script using the regular browser DevTools with it's conso
 To enable running scripts in a Chrome-based browser,  
 it is required to either enable Developer-Mode or  
 "Allow User Scripts" toggle (via extension settings) for TamperMonkey extension.  
-([see this](https://www.tampermonkey.net/faq.php?locale=en#Q209)).
+([see this](https://www.tampermonkey.net/faq.php?locale=en#Q209)).  
+
+![manage_extension](https://www.tampermonkey.net/images/manage_extension.jpg)  
+![userscripts_toggle](https://www.tampermonkey.net/images/userscripts_toggle.png)  
+
